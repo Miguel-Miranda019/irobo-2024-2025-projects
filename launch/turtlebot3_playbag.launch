@@ -15,7 +15,6 @@
   <!-- TF -->
   <node pkg="tf2_ros" type="static_transform_publisher" name="initial_tf" args="0.935 1.34 -0.023 0.001 -0.003 0.737 0.676 mocap map"/>
   <node pkg="tf2_ros" type="static_transform_publisher" name="mocap_to_odom" required="true" args="0 0 0 0 0 0 map odom"/>
-  <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom_filtered_broadcaster" args="0 0 0 0 0 0 1 map odom/filtered" />
   
   <!-- ROSBAG -->
   <param name="/use_sim_time" value="true"/>
@@ -66,26 +65,15 @@
 </node>
   
   <!-- Ground Truth Trajectory -->
-  <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="mocap_trajectory_server">
-    <param name="source_frame_name" value="mocap_laser_link"/>
-    <param name="trajectory_update_rate" value="30"/>
-    <param name="trajectory_publish_rate" value="1"/>
-    <remap from="trajectory" to="mocap_trajectory"/>
-  </node>
- <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="ekf_trajectory_server">
-  <param name="source_frame_name" value="odom/filtered"/>  <!-- or odom_combined, odom/filtered depending on your config -->
-  <param name="trajectory_update_rate" value="30"/>
-  <param name="trajectory_publish_rate" value="1"/>
-  <remap from="trajectory" to="ekf_trajectory"/>
-</node>
 
   <!-- AMCL-->
 
   <!-- Groundtruth path -->
-  <node name="gt_info_publisher" pkg="turtlebot3_datasets" type="publish_pose.py">
+  <node name="ground_truth_publisher" pkg="turtlebot3_datasets" type="publish_pose.py">
   </node>
-
   <!-- Estimated path -->
+  <node name="path_publisher" pkg="turtlebot3_datasets" type="publish_path_odom.py">
+  </node>
 
   <!-- Position error publisher -->
 

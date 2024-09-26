@@ -10,8 +10,11 @@ project(turtlebot3_datasets)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
+  geometry_msgs
   tf2_ros
+  tf2_msgs
 )
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -153,7 +156,8 @@ include_directories(
 
 # Mark executable scripts (Python etc.) for installation
 install(PROGRAMS
-  scripts/gt_info_publisher.py
+  scripts/publish_pose.py
+  scripts/publish_path_odom.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
