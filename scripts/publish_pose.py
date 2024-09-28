@@ -45,12 +45,12 @@ class GroundTruthPublisher:
         
         # Set covariance matrix (identity or adjust based on your application)
         pose.pose.covariance = [
-            1, 0, 0, 0, 0, 0,
-            0, 1, 0, 0, 0, 0,
-            0, 0, 1, 0, 0, 0,
-            0, 0, 0, 1, 0, 0,
-            0, 0, 0, 0, 1, 0,
-            0, 0, 0, 0, 0, 1
+            0.01, 0, 0, 0, 0, 0,
+            0, 0.01, 0, 0, 0, 0,
+            0, 0, 0.01, 0, 0, 0,
+            0, 0, 0, 0.01, 0, 0,
+            0, 0, 0, 0, 0.01, 0,
+            0, 0, 0, 0, 0, 0.01
         ]
         
         self.publisher.publish(pose)  # Publish the pose

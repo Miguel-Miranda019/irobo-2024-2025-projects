@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 import rospy
 import rosbag
@@ -7,76 +7,214 @@ import argparse
 import numpy
 from tf2_ros import Buffer, TransformListener
 from rosgraph_msgs.msg import Clock
+import matplotlib.pyplot as plt
+import numpy as np
+import math
 
-class TransformHandler():
+from geometry_msgs.msg import PoseStamped, TransformStamped, PoseWithCovariance
+from nav_msgs.msg import Odometry
+import tf2_py as tf2
+import tf2_geometry_msgs
+import sympy as sp
 
-    def __init__(self, gt_frame, est_frame, max_time_between=0.01):
-        self.gt_frame = gt_frame
-        self.est_frame = est_frame
-        self.frames = [gt_frame, est_frame]
+tf_buffer: Buffer = None
+time_data = []
+error_data = []
+initial_time = None
+est_pose_data = []
+ellipse_data = []
+gt_pose_data = []
+lower_bound_pose_data = []
+upper_bound_pose_data = []
+x_rot_data = []
+y_rot_data = []
 
-        self.tf_buffer = Buffer(cache_time=rospy.Duration(max_time_between))
-        self.__tf_listener = TransformListener(self.tf_buffer)
+def extrema_to_ellipse(gt_tf: TransformStamped, uncertainty_ellipse: tuple):
+    (a, b, alpha, x0, y0) = uncertainty_ellipse
+    gt_trans = gt_tf.transform.translation
+    (x1, y1) = (gt_trans.x, gt_trans.y)
+    # Generate points on the ellipse before rotation
+    theta = np.linspace(0, 2 * np.pi, 1000)
 
-        #self.warn_timer = rospy.Timer(rospy.Duration(5), self.__warn_timer_cb)
+    # Rotate the ellipse alpha degrees counter tf_listener = clockwise
+    x_rot = (a*np.cos(theta)*np.cos(alpha)) - (b*np.sin(theta)*np.sin(alpha)) + x0 
+    y_rot = (a*np.cos(theta)*np.sin(alpha)) + (b*np.sin(theta)*np.cos(alpha)) + y0
 
-    def __warn_timer_cb(self, evt):
+    x_rot_data.append(x_rot)
+    y_rot_data.append(y_rot)
 
-        available_frames = self.tf_buffer.all_frames_as_string()
-        avail = True
-        for frame in self.frames:
-            if frame not in available_frames:
-                rospy.logwarn('Frame {} has not been seen yet'.format(frame))
-                avail = False
-        if avail:
-            self.warn_timer.shutdown()
+    # Calculate the distances between point a and the points on the ellipse
+    distances = np.sqrt((x_rot - x1)**2 + (y_rot - y1)**2)
+    min_i = np.argmin(distances)
 
-    def get_transform(self, fixed_frame, target_frame):
-        # caller should handle the exceptions
-        return self.tf_buffer.lookup_transform(target_frame, fixed_frame, rospy.Time(0))
+    min_x = x_rot[min_i]
+    min_y = y_rot[min_i]
+
+    max_i = np.argmax(distances)
+
+    max_x = x_rot[max_i]
+    max_y = y_rot[max_i]
+
+    min_pose = TransformStamped()
+    min_pose.transform.translation.x = min_x
+    min_pose.transform.translation.y = min_y
+
+    max_pose = TransformStamped()
+    max_pose.transform.translation.x = max_x
+    max_pose.transform.translation.y = max_y
+
+    return (min_pose, max_pose, x_rot, y_rot)
+
+def calculate_distance(gt_tf: TransformStamped, est_tf: TransformStamped):
+    dx = gt_tf.transform.translation.x - est_tf.transform.translation.x
+    dy = gt_tf.transform.translation.y - est_tf.transform.translation.y
+    return np.sqrt(dx**2 + dy**2)
+
+def calculate_bounded_error(gt_tf, est_tf, uncertainty_ellipse):
+    global tf_buffer, gt_frame, initial_time, time_data, error_data, est_pose_data, gt_pose_data, ellipse_data
+    (lower_bound_pose, higher_bound_pose, x_rot, y_rot) = extrema_to_ellipse(gt_tf, uncertainty_ellipse)
+
+    error = calculate_distance(gt_tf, est_tf) *1e3
+    lower_bound_error = calculate_distance(gt_tf, lower_bound_pose) * 1e3
+    higher_bound_error = calculate_distance(gt_tf, higher_bound_pose) * 1e3
+    
+    return ((lower_bound_pose, higher_bound_pose), (x_rot, y_rot), (lower_bound_error, error, higher_bound_error))
+
+def is_within_ellipse(tf: TransformStamped, ellipse) -> bool:
+    x, y = tf.transform.translation.x, tf.transform.translation.y
+    a, b, theta, x0, y0 = ellipse
+    cos_theta, sin_theta = np.cos(theta), np.sin(theta)
+    x_hat = cos_theta * (x - x0) + sin_theta * (y - y0)
+    y_hat = -sin_theta * (x - x0) + cos_theta * (y - y0)
+    return (x_hat / a) ** 2 + (y_hat / b) ** 2 <= 1
+
+def odometry_callback(data: Odometry):
+    global tf_buffer, initial_time, time_data, error_data, est_pose_data, gt_pose_data, ellipse_data, x_rot_data, y_rot_data
+
+    try:
+        gt_tf: TransformStamped = tf_buffer.lookup_transform("mocap", "mocap_laser_link", time=data.header.stamp) #TODO: must be sourced from the odom frame time stamp
+        # Get time from data
+        est_tf: TransformStamped = tf_buffer.lookup_transform("mocap", "base_scan",time= data.header.stamp)
+    except tf2.ExtrapolationException:
+        return
+    
+    curr_time = rospy.get_time()
+
+    matrix = np.mat(data.pose.covariance)
+    matrix = matrix.reshape(6,6)
+    matrix = matrix[:2, :2]
+    eig = np.linalg.eig(matrix)
+    eigenvalues, eigenvectors = eig
+    eigenorder = eigenvalues.argsort()[::-1]
+    eigenvalues, eigenvectors = eigenvalues[eigenorder], eigenvectors[:, eigenorder]
+    
+    a, b = tuple(2*np.sqrt(eigenvalues)) # 95% probability
+    x0, y0 = (est_tf.transform.translation.x, est_tf.transform.translation.y)
+    ellipse_rotation = np.arctan2(*eigenvectors[:, 0][::-1]).item()
+    uncertainty_ellipse = (a, b, ellipse_rotation, x0, y0) # a, b, x0, y0
+
+    (bound_pose, ellipse_rot, bounded_error) = calculate_bounded_error(gt_tf, est_tf, uncertainty_ellipse)
+
+    (x_rot, y_rot) =ellipse_rot
+    (lower_bound_pose, higher_bound_pose) = bound_pose
+
+    (lower_bound_error, error, higher_bound_error) = bounded_error
+    
+    # TODO: use within ellipse function and not within circle...
+    if(calculate_distance(gt_tf, est_tf) < a): # Assuming ellipse is a circle...
+        lower_bound_pose = gt_tf
+        lower_bound_error = 0
+        print("WITHIN ELLIPSE")
+    
+    if(lower_bound_error > error or higher_bound_error < error):
+        print("ALERTTTTTT")
+
+    time_data.append(curr_time-initial_time)
+    est_pose_data.append([est_tf.transform.translation.x, est_tf.transform.translation.y])
+    gt_pose_data.append([gt_tf.transform.translation.x, gt_tf.transform.translation.y])
+    error_data.append((lower_bound_error, error, higher_bound_error))
+    lower_bound_pose_data.append([lower_bound_pose.transform.translation.x, lower_bound_pose.transform.translation.y])
+    upper_bound_pose_data.append([higher_bound_pose.transform.translation.x, higher_bound_pose.transform.translation.y])
+    x_rot_data.append(x_rot)
+    y_rot_data.append(y_rot)
+
+def main():
+    global tf_buffer, gt_frame, initial_time, time_data, error_data, est_pose_data, gt_pose_data, ellipse_data, x_rot_data, y_rot_data
+
+    rospy.init_node('evaluation_node')
+
+    if rospy.rostime.is_wallclock():
+        rospy.logfatal('You should be using simulated time: rosparam set use_sim_time true')
+        sys.exit(1)
+
+    rospy.loginfo('Waiting for clock')
+    rospy.sleep(0.00001)
+
+    rospy.loginfo('Listening to frames and computing error, press S to stop')
+
+    initial_time = rospy.get_time()
+
+    tf_buffer = Buffer(cache_time=rospy.Duration(20))
+    tf_listener = TransformListener(tf_buffer)
+
+    sub = rospy.Subscriber("odometry/filtered", Odometry, odometry_callback, buff_size=1)
+
+    print(tf_buffer)
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        pass
+    
+    #plt.plot([est_pose_data[10][0]], [est_pose_data[10][1]])
+    #plt.plot([gt_pose_data[10][0]] , [gt_pose_data[10][1]])
+    #plt.show() 
+
+    # TODO: Change to uncertainty graph
+    plt.title("Elipse at time %.2f seconds" % time_data[-1])
+    plt.ylabel("y coordinate (m)")
+    plt.xlabel("x coordinate (m)")
+    plt.axis('equal')
+    plt.plot(x_rot_data[-1], y_rot_data[-1], label='Covariance ellipse')
+    print("\n Timestamp: ", time_data[-1] + initial_time)
+    print("\n Ground thruth: ", gt_pose_data[-1][0], gt_pose_data[-1][1])
+    plt.plot(gt_pose_data[-1][0] , [gt_pose_data[-1][1]], 'ro', label='Ground truth')
+    print("\n Estimated ", est_pose_data[-1][0] , est_pose_data[-1][1])
+    plt.plot(est_pose_data[-1][0], [est_pose_data[-1][1]], 'go', label='Estimated position')
+    print("\n Lower bound: ", error_data[-1][0])
+    plt.plot(lower_bound_pose_data[-1][0], [lower_bound_pose_data[-1][1]], 'yx', label='Lower bound')
+    print("\n Upper bound: ", error_data[-1][2])
+    plt.plot(upper_bound_pose_data[-1][0], [upper_bound_pose_data[-1][1]], 'cx', label='Upper bound')
+    plt.legend(loc='best')
+    plt.show() 
+    #plt.savefig('uncertainty_ellipse_plot.png')
+    #plt.close()
 
 
-def get_errors(transform):
-    tr = transform.transform.translation
-    return numpy.linalg.norm( [tr.x, tr.y] )
+    lower_bound_errors = [e[0] for e in error_data]
+    errors = [e[1] for e in error_data]
+    upper_bound_errors = [e[2] for e in error_data]
+
+    plt.title("Mocap vs Estimation Error")
+    plt.ylabel("Distance (mm)")
+    plt.xlabel("Time (Seconds)")
+
+    # TODO: Change
+    # Use the mean of every 50th chunks of data to plot the error bars
+    lower_bound_errors_mean = [np.mean(lower_bound_errors[i:i+50]) for i in range(0, len(lower_bound_errors), 50)]
+    upper_bound_errors_mean = [np.mean(upper_bound_errors[i:i+50]) for i in range(0, len(upper_bound_errors), 50)]
+    plt.errorbar(time_data[::50], errors[::50], yerr=[lower_bound_errors_mean, upper_bound_errors_mean], alpha=.75, fmt='o', capsize=4, markersize=2, capthick=1, label='Moving Average Error Uncertainty')
+
+    # Reduce the ball size
+    plt.errorbar
+    # Show the bars with the little inter
+    plt.plot(time_data, errors, label='Error')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.show()
+    #plt.savefig('error_plot.png')
+    #plt.close()
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--gt_frame', help='The child frame of the GT transform', default='mocap_laser_link')
-parser.add_argument('--est_frame', help='The child frame of the estimation transform', default='base_scan')
 
-args = parser.parse_args()
-
-gt_frame = args.gt_frame
-est_frame = args.est_frame
-
-rospy.init_node('evaluation_node')
-
-if rospy.rostime.is_wallclock():
-    rospy.logfatal('You should be using simulated time: rosparam set use_sim_time true')
-    sys.exit(1)
-
-rospy.loginfo('Waiting for clock')
-rospy.sleep(0.00001)
-
-handler = TransformHandler(gt_frame, est_frame, max_time_between=20) # 500ms
-
-rospy.loginfo('Listening to frames and computing error, press Ctrl-C to stop')
-sleeper = rospy.Rate(1000)
-try:
-    while not rospy.is_shutdown():
-        try:
-            t = handler.get_transform(gt_frame, est_frame)
-        except Exception as e:
-            rospy.logwarn(e)
-        else:
-            eucl = get_errors(t)
-            rospy.loginfo('Error (in mm): {:.2f}'.format(eucl * 1e3))
-
-        try:
-            sleeper.sleep()
-        except rospy.exceptions.ROSTimeMovedBackwardsException as e:
-            rospy.logwarn(e)
-
-except rospy.exceptions.ROSInterruptException:
-    pass
+if __name__ == "__main__":
+    main()

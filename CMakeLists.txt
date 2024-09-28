@@ -13,6 +13,9 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   tf2_ros
   tf2_msgs
+  nav_msgs
+  tf2_geometry_msgs
+  rosbag
 )
 
 
@@ -106,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  CATKIN_DEPENDS rospy std_msgs tf2_ros
+  CATKIN_DEPENDS rospy std_msgs tf2_ros tf2_msgs nav_msgs tf2_geometry_msgs rosbag
 )
 
 ###########
@@ -158,6 +161,7 @@ include_directories(
 install(PROGRAMS
   scripts/publish_pose.py
   scripts/publish_path_odom.py
+  scripts/calculate_error.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
