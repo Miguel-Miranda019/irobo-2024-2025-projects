@@ -161,6 +161,7 @@ include_directories(
 install(PROGRAMS
   scripts/publish_pose.py
   scripts/publish_path_odom.py
+  scripts/publish_amcl_path.py
   scripts/calculate_error.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
