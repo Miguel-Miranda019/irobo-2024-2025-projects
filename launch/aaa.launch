@@ -1,4 +1,4 @@
-<param name="frequency" value="10" />
+<param name="frequency" value="50" />
   <param name="sensor_timeout" value="0.2" />
   <param name="two_d_mode" value="true" />
   <param name="publish_tf" value="false" />
@@ -24,17 +24,17 @@
       [false, false, false,
        false, false, true,
        false, false, false,
-       true, true, false,
+       false, false, false,
        false, false, false]</rosparam>
     <param name="imu0_relative" value="true"/>
 
   <!-- Ground Truth (PoseWithCovariance from gtInfo) -->
-  <param name="gt0" value="/gtInfo" />
+  <param name="gt0" value="gtInfo" />
   <rosparam param="gt0_config">
-    [true, true, false,  # X, Y, Z positions
-     false, false, true, # Roll, Pitch, Yaw orientations
-     false, false, false, # X, Y, Z velocities
-     false, false, false, # Roll, Pitch, Yaw angular velocities
-     false, false, false] # Linear acceleration (if available)
+    [true, true, false,
+     false, false, true, 
+     false, false, false, 
+     false, false, false, 
+     false, false, false] 
   </rosparam>
   <param name="gt0_differential" value="false" />

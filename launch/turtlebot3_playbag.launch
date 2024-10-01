@@ -5,8 +5,7 @@
   <arg name="map_file" default="$(find turtlebot3_datasets)/data/map.yaml" />
 
   <!-- Turtlebot3 -->
-  <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
-    <arg name="model" value="$(arg model)" />
+  <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch"> <arg name="model" value="$(arg model)" />
   </include>
 
   <!-- Map server -->
@@ -16,13 +15,17 @@
   <node pkg="tf2_ros" type="static_transform_publisher" name="initial_tf" args="0.935 1.34 -0.023 0.001 -0.003 0.737 0.676 mocap map"/>
   <node pkg="tf2_ros" type="static_transform_publisher" name="mocap_to_odom" required="true" args="0 0 0 0 0 0 map odom"/>
   
+  
   <!-- ROSBAG -->
   <param name="/use_sim_time" value="true"/>
-  <node pkg="rosbag" type="play" name="rosbag_player" 
-          args="--clock $(find turtlebot3_datasets)/data/$(arg bag_name).bag"/>
+  <node pkg="rosbag" type="play" name="rosbag_player" args="--clock $(find turtlebot3_datasets)/data/$(arg bag_name).bag"/>
 
-    <node pkg="robot_localization" type="ekf_localization_node" name="robot_localization_ekf_node_odom" clear_params="true">
-  <param name="frequency" value="10" />
+  <!-- Groundtruth path -->
+  <node name="ground_truth_publisher" pkg="turtlebot3_datasets" type="publish_gt.py">
+  </node>
+
+  <node pkg="robot_localization" type="ekf_localization_node" name="robot_localization_ekf_node_odom" clear_params="true">
+  <param name="frequency" value="50" />
   <param name="sensor_timeout" value="0.2" />
   <param name="two_d_mode" value="true" />
   <param name="publish_tf" value="false" />
@@ -48,35 +51,35 @@
       [false, false, false,
        false, false, true,
        false, false, false,
-       true, true, false,
+       false, false, false,
        false, false, false]</rosparam>
     <param name="imu0_relative" value="true"/>
 
   <!-- Ground Truth (PoseWithCovariance from gtInfo) -->
-  <param name="gt0" value="/gtInfo" />
-  <rosparam param="gt0_config">
-    [true, true, false,  # X, Y, Z positions
-     false, false, true, # Roll, Pitch, Yaw orientations
-     false, false, false, # X, Y, Z velocities
-     false, false, false, # Roll, Pitch, Yaw angular velocities
-     false, false, false] # Linear acceleration (if available)
+  <param name="pose0" value="gtInfo" />
+  <rosparam param="pose0_config">
+    [true, true, false,
+     false, false, true, 
+     false, false, false, 
+     false, false, false, 
+     false, false, false] 
   </rosparam>
-  <param name="gt0_differential" value="false" />
-</node>
+  <param name="pose0_differential" value="false" />
+  </node>
   
   <!-- Ground Truth Trajectory -->
 
   <!-- AMCL-->
 
-  <!-- Groundtruth path -->
-  <node name="ground_truth_publisher" pkg="turtlebot3_datasets" type="publish_pose.py">
+  
+  <node name="path_publisher" pkg="turtlebot3_datasets" type="publish_gtPath.py">
   </node>
   <!-- Estimated path -->
-  <node name="path_publisher" pkg="turtlebot3_datasets" type="publish_path_odom.py">
+  <node name="path_ekf_publisher" pkg="turtlebot3_datasets" type="publish_path_odom.py">
   </node>
   <!-- Calculate Error -->
-  <node name="evaluation_node" pkg="turtlebot3_datasets" type="calculate_error.py">
-  </node>
+  <!-- <node name="evaluation_node" pkg="turtlebot3_datasets" type="calculate_error.py">
+  </node> -->
 
   <!-- Position error publisher -->
 

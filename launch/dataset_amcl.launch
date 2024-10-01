@@ -1,11 +1,11 @@
 <launch>
     <!-- Arguments -->
     <arg name="model" default="waffle_pi" />
-    <arg name="bag_name" default="gmapping2" />
-    <arg name="map_file" default="$(find turtlebot3_datasets)/data/mapaSalaG1.yaml" />
+    <arg name="bag_name" default="fixed_slam_easy" />
+    <arg name="map_file" default="$(find turtlebot3_datasets)/data/map.yaml" />
     <arg name="open_rviz" default="true" />
-    <arg name="initial_pose_x" default="3.000000" />
-    <arg name="initial_pose_y" default="2.500000" />
+    <arg name="initial_pose_x" default="0.000000" />
+    <arg name="initial_pose_y" default="0.000000" />
     <arg name="initial_pose_a" default="0.000000" />
 
     <!-- Turtlebot3 -->
@@ -16,11 +16,14 @@
     <!-- Map server -->
     <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)" />
 
+    <!-- TF -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="initial_tf" args="0.935 1.34 -0.023 0.001 -0.003 0.737 0.676 mocap map"/>
+
     <!-- Rosbag -->
     <param name="/use_sim_time" value="true" />
     <node pkg="rosbag" type="play" name="rosbag_player"
         args="--clock $(find turtlebot3_datasets)/data/$(arg bag_name).bag" />
-
+    
     <!-- AMCL -->
     <node pkg="amcl" type="amcl" name="amcl">
         <param name="initial_pose_x" value="$(arg initial_pose_x)" />
@@ -47,4 +50,4 @@
 
     
 </launch>
-  
+

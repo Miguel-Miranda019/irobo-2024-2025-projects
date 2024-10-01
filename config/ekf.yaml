@@ -1,6 +1,4 @@
-frequency: 30
-
-sensor_timeout: 0.2
+sensor_timeout: 0.5
 two_d_mode: true
 publish_tf: false
 map_frame: map
@@ -8,7 +6,7 @@ odom_frame: odom
 base_link_frame: base_footprint
 world_frame: map
 
-odom0: /odom
+odom0: odom
 odom0_config: [false, false, false,
               false, false, false,
               true, true, false,
@@ -16,21 +14,23 @@ odom0_config: [false, false, false,
               false, false, false]
 
 odom0_relative: false
+odom0_differential: false
 
-imu0: /imu
+imu0: imu
 imu0_config: [false, false, false,
               false, false, true,
               false, false, false,
-              true, true, false,
+              false, false, false,
               false, false, false]
               
 imu0_relative: true
+imu0_differential: false
 imu0_remove_gravitational_acceleration: true
 
-gt0: /gtInfo
-gt0_config: [true, true, false,  # X, Y, Z positions
-              false, false, true, # Roll, Pitch, Yaw orientations
-              false, false, false, # X, Y, Z velocities
-              false, false, false, # Roll, Pitch, Yaw angular velocities
-              false, false, false] # Linear acceleration (if available)
+gt0: gtInfo
+gt0_config: [true, true, false,
+              false, false, true,
+              false, false, false,
+              false, false, false,
+              false, false, false]
 gt0_differential: false

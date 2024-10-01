@@ -1,20 +1,17 @@
 #!/usr/bin/env python3
 
 import rospy
-from nav_msgs.msg import Path
-from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseStamped
 import tf2_ros
-import tf2_geometry_msgs
+from nav_msgs.msg import Path
+from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 
 class PathPublisher:
     def __init__(self):
-        # Initialize the ROS node
-        rospy.init_node('path_ekf_publisher')
+        rospy.init_node('path_publisher')
         rospy.set_param('/use_sim_time', True)
         
         # Publisher for the Path message
-        self.path_publisher = rospy.Publisher('/robot_path_ekf', Path, queue_size=10)
+        self.path_publisher = rospy.Publisher('/robot_path', Path, queue_size=10)
         
         # TF2 Buffer and Listener
         self.tf_buffer = tf2_ros.Buffer()
@@ -24,31 +21,24 @@ class PathPublisher:
         self.path_msg = Path()
         self.path_msg.header.frame_id = "mocap"  # Set the frame ID for the path
         
-        # Subscribe to the filtered odometry data
-        rospy.Subscriber('/odometry/filtered', Odometry, self.odometry_callback)
+        # Subscribe to the ground truth data
+        rospy.Subscriber('/gtInfo', PoseWithCovarianceStamped, self.gt_callback)
         
         # Timer to publish the path at a fixed rate
         self.rate = rospy.Rate(10)  # 10 Hz for path publishing
         self.publish_path()
+    
+    def gt_callback(self, gt_msg):
+        """Callback function to handle incoming ground truth messages."""
         
-    def odometry_callback(self, odometry_msg):
-        """Callback function to handle incoming Odometry messages."""
-        
-        transform = self.tf_buffer.lookup_transform("mocap", "map", rospy.Time(0), rospy.Duration(1.0))
-        # Create a PoseStamped message from the odometry message
         pose_stamped = PoseStamped()
-        pose_stamped.header = odometry_msg.header
-        pose_stamped.pose = odometry_msg.pose.pose  # Use the pose from Odometry
-        
-        transformed_pose = tf2_geometry_msgs.do_transform_pose(
-            pose_stamped, transform
-        )
+        pose_stamped.header = gt_msg.header
+        pose_stamped.pose = gt_msg.pose.pose  # Use the pose from GT
         
         # Add the pose to the path
-        self.path_msg.poses.append(transformed_pose)
-
-        rospy.loginfo("Published /odometry/filtered info.")
-        
+        self.path_msg.poses.append(pose_stamped)
+        rospy.loginfo("Added ground truth pose to path.")
+    
     def publish_path(self):
         """Publish the accumulated path at a fixed rate."""
         while not rospy.is_shutdown():

@@ -163,6 +163,8 @@ install(PROGRAMS
   scripts/publish_path_odom.py
   scripts/publish_amcl_path.py
   scripts/calculate_error.py
+  scripts/publish_gt.py 
+  scripts/publish_gtPath.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

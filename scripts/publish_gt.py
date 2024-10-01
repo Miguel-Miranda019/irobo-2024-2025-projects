@@ -3,8 +3,7 @@
 import threading
 import rospy
 import tf2_ros
-from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
-from nav_msgs.msg import Path
+from geometry_msgs.msg import PoseWithCovarianceStamped
 from tf2_msgs.msg import TFMessage
 
 class GroundTruthPublisher:
@@ -12,9 +11,8 @@ class GroundTruthPublisher:
         rospy.init_node('ground_truth_publisher')
         rospy.set_param('/use_sim_time', True)
         
-        # Publishers
+        # Publisher for ground truth poses
         self.publisher = rospy.Publisher('/gtInfo', PoseWithCovarianceStamped, queue_size=50)
-        self.path_publisher = rospy.Publisher('/robot_path', Path, queue_size=50)
         
         # TF2 Buffer and Listener
         self.tf_buffer = tf2_ros.Buffer()
@@ -23,18 +21,11 @@ class GroundTruthPublisher:
         # Thread lock
         self.lock = threading.Lock()
         
-        # Path message initialization
-        self.path_msg = Path()
-        self.path_msg.header.frame_id = "mocap"
-        
         # Last publish time
         self.last_publish_time = rospy.Time(0)
         
         # Subscriber
         rospy.Subscriber('/tf', TFMessage, self.tf_callback)
-        
-        # Timer for path publishing at 10 Hz
-        self.path_timer = rospy.Timer(rospy.Duration(0.1), self.publish_path)
     
     def publish_pose(self, msg):
         pose = PoseWithCovarianceStamped()
@@ -45,17 +36,6 @@ class GroundTruthPublisher:
         
         self.publisher.publish(pose)
         rospy.loginfo("Published ground truth info.")
-        
-        with self.lock:
-            pose_stamped = PoseStamped()
-            pose_stamped.header = pose.header
-            pose_stamped.pose = pose.pose.pose
-            self.path_msg.poses.append(pose_stamped)
-
-    def publish_path(self, event):
-        with self.lock:
-            self.path_msg.header.stamp = rospy.Time.now()
-            self.path_publisher.publish(self.path_msg)
     
     def tf_callback(self, tf_msg):
         try:
@@ -64,7 +44,7 @@ class GroundTruthPublisher:
                     current_time = rospy.Time.now()
                     time_diff = current_time - self.last_publish_time
                     
-                    if time_diff.to_sec() >= 1:
+                    if time_diff.to_sec() >= 1:  # Publish every second
                         self.publish_pose(transform)
                         self.last_publish_time = current_time
         except tf2_ros.ExtrapolationException as e:
