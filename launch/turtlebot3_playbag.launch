@@ -78,8 +78,8 @@
   <node name="path_ekf_publisher" pkg="turtlebot3_datasets" type="publish_path_odom.py">
   </node>
   <!-- Calculate Error -->
-  <!-- <node name="evaluation_node" pkg="turtlebot3_datasets" type="calculate_error.py">
-  </node> -->
+  <node name="evaluation_node" pkg="turtlebot3_datasets" type="calculate_error.py">
+  </node>
 
   <!-- Position error publisher -->
 

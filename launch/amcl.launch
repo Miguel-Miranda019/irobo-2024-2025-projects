@@ -1,12 +1,12 @@
 <launch>
     <!-- Arguments -->
     <arg name="model" default="waffle_pi" />
-    <arg name="bag_name" default="gmapping2" />
-    <arg name="map_file" default="$(find turtlebot3_datasets)/data/mapaSalaG1.yaml" />
+    <arg name="bag_name" default="final" />
+    <arg name="map_file" default="$(find turtlebot3_datasets)/data/final.yaml" />
     <arg name="open_rviz" default="true" />
-    <arg name="initial_pose_x" default="3.000000" />
-    <arg name="initial_pose_y" default="2.500000" />
-    <arg name="initial_pose_a" default="0.000000" />
+    <arg name="initial_pose_x" default="0" />
+    <arg name="initial_pose_y" default="0" />
+    <arg name="initial_pose_a" default="0" />
 
     <!-- Turtlebot3 -->
     <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
@@ -27,8 +27,8 @@
         <param name="initial_pose_y" value="$(arg initial_pose_y)" />
         <param name="initial_pose_a" value="$(arg initial_pose_a)" />
 
-        <param name="initial_cov_xx" value="2.0 * 2.0" />
-        <param name="initial_cov_yy" value="2.0 * 2.0" />
+        <param name="initial_cov_xx" value="0.5" />
+        <param name="initial_cov_yy" value="0.5" />
 
         <param name="min_particles" value="500" />
         <param name="max_particles" value="5000" />
