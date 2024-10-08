@@ -1,0 +1,3 @@
+terminal 1: roslaunch turtlebot3_gazebo turtlebot3_world.launch
+
+terminal 2: roslaunch turtlebot3_navigation turtlebot3_navigation.launch
