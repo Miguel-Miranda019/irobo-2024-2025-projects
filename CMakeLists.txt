@@ -167,6 +167,8 @@ install(PROGRAMS
   scripts/position_with_cov.py
   scripts/publish_gt.py 
   scripts/publish_gtPath.py
+  scripts/retrieve_values.py
+  scripts/publish_ekf_pose.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

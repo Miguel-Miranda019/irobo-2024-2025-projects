@@ -75,12 +75,13 @@
   <node name="path_publisher" pkg="turtlebot3_datasets" type="publish_gtPath.py">
   </node>
   <!-- Estimated path -->
-  <node name="path_ekf_publisher" pkg="turtlebot3_datasets" type="publish_path_odom.py">
-  </node>
+  <!-- <node name="path_ekf_publisher" pkg="turtlebot3_datasets" type="publish_path_odom.py"></node> -->
+  <node name="path_ekf_publisher" pkg="turtlebot3_datasets" type="publish_ekf_pose.py"></node>
   <!-- Calculate Error -->
-  <node name="evaluation_node" pkg="turtlebot3_datasets" type="position_with_cov.py">
-  <!--  <node name="evaluation_node" pkg="turtlebot3_datasets" type="error_with_cov.py"> -->
-  </node>
+  <node name="data_saver_node" pkg="turtlebot3_datasets" type="retrieve_values.py"></node>
+  
+  
+  <!--  <node name="evaluation_node" pkg="turtlebot3_datasets" type="error_with_cov.py"></node> -->
 
   <!-- Position error publisher -->
 

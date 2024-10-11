@@ -22,6 +22,7 @@
   <build_depend>geometry_msgs</build_depend>
   <build_depend>nav_msgs</build_depend>
   <build_depend>tf2_geometry_msgs</build_depend>
+  <build_depend>scipy</build_depend>
 
   <!-- Runtime dependencies -->
   <exec_depend>rospy</exec_depend>
