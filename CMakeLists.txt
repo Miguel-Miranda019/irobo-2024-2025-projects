@@ -162,6 +162,7 @@ install(PROGRAMS
   scripts/publish_pose.py
   scripts/publish_path_odom.py
   scripts/publish_amcl_path.py
+  scripts/transformed_amcl.py
   scripts/calculate_error.py
   scripts/error.py
   scripts/position_with_cov.py
