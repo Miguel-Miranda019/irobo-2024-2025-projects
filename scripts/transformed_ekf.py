@@ -47,6 +47,7 @@ class PathPublisher:
 
             # Transform the pose from the 'map' frame to the 'mocap' frame
             transformed_pose = tf2_geometry_msgs.do_transform_pose(pose_stamped, transform)
+            transformed_pose.header.stamp = odometry_msg.header.stamp
 
             # Add the transformed pose to the path message
             self.path_msg.poses.append(transformed_pose)

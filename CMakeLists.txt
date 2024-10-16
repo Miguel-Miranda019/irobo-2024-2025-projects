@@ -165,11 +165,14 @@ install(PROGRAMS
   scripts/transformed_amcl.py
   scripts/calculate_error.py
   scripts/error.py
+  scripts/ekf_npz_retriever.py
+  scripts/amcl_npz_retriever.py
+  scripts/publish_ekf_error.py
   scripts/position_with_cov.py
   scripts/publish_gt.py 
   scripts/publish_gtPath.py
   scripts/retrieve_values.py
-  scripts/publish_ekf_pose.py
+  scripts/transformed_ekf.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

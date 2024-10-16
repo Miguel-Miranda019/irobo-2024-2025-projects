@@ -76,9 +76,10 @@
   </node>
   <!-- Estimated path -->
   <!-- <node name="path_ekf_publisher" pkg="turtlebot3_datasets" type="publish_path_odom.py"></node> -->
-  <node name="path_ekf_publisher" pkg="turtlebot3_datasets" type="publish_ekf_pose.py"></node>
+  <node name="path_ekf_publisher" pkg="turtlebot3_datasets" type="transformed_ekf.py"></node>
   <!-- Calculate Error -->
-  <node name="data_saver_node" pkg="turtlebot3_datasets" type="retrieve_values_ekf.py"></node>
+  <node name="data_saver_node" pkg="turtlebot3_datasets" type="ekf_npz_retriever.py"></node>
+  <node name="ekf_error_saver_node" pkg="turtlebot3_datasets" type="publish_ekf_error.py"></node>
   
   
   <!--  <node name="evaluation_node" pkg="turtlebot3_datasets" type="error_with_cov.py"></node> -->

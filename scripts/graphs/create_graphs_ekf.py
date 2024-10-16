@@ -98,7 +98,7 @@ class PositionWithCovGraph:
         
 if __name__ == '__main__':
     # Path to the .npz file containing saved data
-    npz_filepath = '/home/miguel/catkin_ws/src/turtlebot3_datasets/data/bag_data.npz'
+    npz_filepath = '/home/miguel/catkin_ws/src/turtlebot3_datasets/data/ekf_bag_data.npz'
 
     # Create the error calculator with the loaded data
     position_graph = PositionWithCovGraph(npz_filepath)

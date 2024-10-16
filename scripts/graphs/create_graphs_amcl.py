@@ -57,7 +57,7 @@ class PositionWithCovGraph:
         plt.figure()
         
         plt.subplot(2, 1, 1)
-        plt.plot(self.times, self.amcl_pose_x, label='Estimated amcl Position - Axis X')
+        plt.plot(self.times, self.amcl_pose_x, label='Estimated AMCL Position - Axis X')
         print(len(self.uncertainties_x))
         
         plt.fill_between(self.times,
@@ -70,7 +70,7 @@ class PositionWithCovGraph:
         plt.legend()
 
         plt.subplot(2, 1, 2)
-        plt.plot(self.times, self.amcl_pose_y, label='Estimated amcl Position - Axis Y')
+        plt.plot(self.times, self.amcl_pose_y, label='Estimated AMCL Position - Axis Y')
         
         # Confidence interval: [amcl_position - 2*uncertainty, amcl_position + 2*uncertainty]
         plt.fill_between(self.times,

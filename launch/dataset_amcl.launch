@@ -43,7 +43,7 @@
     <!-- Estimated path -->
     <node name="amcl_path_publisher" pkg="turtlebot3_datasets" type="transformed_amcl.py"></node>
     <node name="ground_truth_publisher" pkg="turtlebot3_datasets" type="publish_gt.py"></node>
-    <node name="data_saver_node" pkg="turtlebot3_datasets" type="retrieve_values_amcl.py"></node>
+    <node name="data_saver_node" pkg="turtlebot3_datasets" type="amcl_npz_retriever.py"></node>
 
     <!-- rviz -->
     <node pkg="rviz" type="rviz" name="rviz" required="true"
