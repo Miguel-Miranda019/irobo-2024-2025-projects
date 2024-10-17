@@ -167,6 +167,7 @@ install(PROGRAMS
   scripts/error.py
   scripts/ekf_npz_retriever.py
   scripts/amcl_npz_retriever.py
+  scripts/publish_amcl_error.py
   scripts/publish_ekf_error.py
   scripts/position_with_cov.py
   scripts/publish_gt.py 

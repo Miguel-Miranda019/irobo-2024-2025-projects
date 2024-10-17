@@ -24,7 +24,7 @@ class DataSaver:
         self.initial_time = None
 
         # Filepath to save the data
-        self.filepath = '/home/miguel/catkin_ws/src/turtlebot3_datasets/data/ekf_bag_data.npz'
+        self.filepath = '/home/raquel/catkin_ws/src/turtlebot3_datasets/data/ekf/ekf_bag_data.npz'
 
         # Register the shutdown hook to save data when the node is terminated
         rospy.on_shutdown(self.save_data)
