@@ -21,8 +21,7 @@
   <node pkg="rosbag" type="play" name="rosbag_player" args="--clock $(find turtlebot3_datasets)/data/$(arg bag_name).bag"/>
 
   <!-- Groundtruth path -->
-  <node name="ground_truth_publisher" pkg="turtlebot3_datasets" type="publish_gt.py">
-  </node>
+  <node name="ground_truth_publisher" pkg="turtlebot3_datasets" type="publish_gt.py"></node>
 
   <node pkg="robot_localization" type="ekf_localization_node" name="robot_localization_ekf_node_odom" clear_params="true">
   <param name="frequency" value="50" />
@@ -68,23 +67,16 @@
   </node>
   
   <!-- Ground Truth Trajectory -->
+  <node name="path_publisher" pkg="turtlebot3_datasets" type="publish_gtPath.py"></node>
 
-  <!-- AMCL-->
-
-  
-  <node name="path_publisher" pkg="turtlebot3_datasets" type="publish_gtPath.py">
-  </node>
   <!-- Estimated path -->
-  <!-- <node name="path_ekf_publisher" pkg="turtlebot3_datasets" type="publish_path_odom.py"></node> -->
   <node name="path_ekf_publisher" pkg="turtlebot3_datasets" type="transformed_ekf.py"></node>
+
   <!-- Calculate Error -->
   <node name="data_saver_node" pkg="turtlebot3_datasets" type="ekf_npz_retriever.py"></node>
-  <node name="ekf_error_saver_node" pkg="turtlebot3_datasets" type="publish_ekf_error.py"></node>
   
-  
-  <!--  <node name="evaluation_node" pkg="turtlebot3_datasets" type="error_with_cov.py"></node> -->
-
   <!-- Position error publisher -->
+  <node name="ekf_error_saver_node" pkg="turtlebot3_datasets" type="publish_ekf_error.py"></node>
 
   <!-- rviz -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find turtlebot3_datasets)/data/turtlebot3_visualize_localization_sim.rviz"/>

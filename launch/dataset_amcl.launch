@@ -17,7 +17,7 @@
     <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)" />
 
     <!-- TF -->
-  <node pkg="tf2_ros" type="static_transform_publisher" name="initial_tf" args="0.935 1.34 -0.023 0.001 -0.003 0.737 0.676 mocap map"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="initial_tf" args="0.935 1.34 -0.023 0.001 -0.003 0.737 0.676 mocap map"/>
 
     <!-- Rosbag -->
     <param name="/use_sim_time" value="true" />
@@ -43,6 +43,7 @@
     <!-- Estimated path -->
     <node name="amcl_path_publisher" pkg="turtlebot3_datasets" type="transformed_amcl.py"></node>
     <node name="ground_truth_publisher" pkg="turtlebot3_datasets" type="publish_gt.py"></node>
+    <node name="path_publisher" pkg="turtlebot3_datasets" type="publish_gtPath.py"></node>
     <node name="amcl_error_saver_node" pkg="turtlebot3_datasets" type="publish_amcl_error.py"></node>
     <node name="data_saver_node" pkg="turtlebot3_datasets" type="amcl_npz_retriever.py"></node>
 

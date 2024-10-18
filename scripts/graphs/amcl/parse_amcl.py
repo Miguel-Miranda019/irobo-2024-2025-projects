@@ -8,6 +8,8 @@ output_file = "/home/raquel/catkin_ws/src/turtlebot3_datasets/data/amcl/filtered
 columns_to_keep = [
     "__time",
     "/robot_pose_with_covariance_amcl/pose/covariance[0]",
+    "/robot_pose_with_covariance_amcl/pose/covariance[1]",
+    "/robot_pose_with_covariance_amcl/pose/covariance[6]",
     "/robot_pose_with_covariance_amcl/pose/covariance[7]",
     "/amcl_error/data",
     "/robot_pose_with_covariance_amcl/pose/pose/position/x",
@@ -57,6 +59,11 @@ try:
 
     gt_df.to_csv("/home/raquel/catkin_ws/src/turtlebot3_datasets/data/amcl/gt.csv", index=False)
     print("gt.csv saved.")
+
+    # ellipse.csv: with "__time" and covariance and positions
+    ellipse_df = df[["__time", "/robot_pose_with_covariance_amcl/pose/covariance[0]", "/robot_pose_with_covariance_amcl/pose/covariance[1]", "/robot_pose_with_covariance_amcl/pose/covariance[6]", "/robot_pose_with_covariance_amcl/pose/covariance[7]", "/robot_pose_with_covariance_amcl/pose/pose/position/x", "/robot_pose_with_covariance_amcl/pose/pose/position/y"]].dropna()
+    ellipse_df.to_csv("/home/raquel/catkin_ws/src/turtlebot3_datasets/data/amcl/ellipse.csv", index=False)
+    print("ellipse.csv saved.")
 except ValueError as e:
     print(f"Error: {e}. Please check if the specified columns exist in the CSV file.")
 
