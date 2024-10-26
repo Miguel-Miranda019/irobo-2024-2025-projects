@@ -1,0 +1,20 @@
+<launch>
+    <!-- Arguments -->
+    <arg name="model" default="waffle_pi" />
+    <arg name="bag_name" default="gmapping" />
+    <arg name="open_rviz" default="true" />
+
+    <!-- Turtlebot3 -->
+    <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
+        <arg name="model" value="$(arg model)" />
+    </include>
+
+    <!-- Rosbag -->
+    <param name="/use_sim_time" value="true" />
+    <node pkg="rosbag" type="play" name="rosbag_player"
+        args="--clock $(find turtlebot3_datasets)/data/$(arg bag_name).bag" />
+
+    <!-- rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+        args="-d $(find turtlebot3_datasets)/data/amcl_localization.rviz" />
+</launch>
