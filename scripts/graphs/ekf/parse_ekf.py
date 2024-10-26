@@ -40,10 +40,6 @@ try:
     ekf_error_df.to_csv("/home/raquel/catkin_ws/src/turtlebot3_datasets/data/ekf/ekf_error.csv", index=False)
     print("ekf_error.csv saved.")
 
-    # gt.csv: with "__time", "/gtInfo/pose/pose/position/x", 
-    #          "/gtInfo/pose/pose/position/y", 
-    #          "/robot_pose_with_covariance_ekf/pose/pose/position/x", 
-    #          "/robot_pose_with_covariance_ekf/pose/pose/position/y"
     gt_df = df[[
         "__time", 
         "/gtInfo/pose/pose/position/x", 

@@ -8,8 +8,8 @@ class ErrorOverTimePlot:
 
         # Extract relevant columns and convert them to 1D arrays
         self.times = self.data['__time'].values
-        self.ekf_error = self.data['/ekf_error/data'].values  # Update with the actual error column name
-        self.amcl_error = self.data['/amcl_error/data'].values  # Update with the actual error column name
+        self.ekf_error = self.data['/ekf_error/data'].values
+        self.amcl_error = self.data['/amcl_error/data'].values
 
         # Print the original errors for debugging
         print("Original EKF Error:", self.ekf_error)
@@ -36,8 +36,8 @@ class ErrorOverTimePlot:
         plt.title('EKF vs. AMCL Error Over Time')
         plt.legend()
 
-        # Set Y-axis limits if necessary
-        plt.ylim(bottom=0)  # Start Y-axis at 0 to ensure visibility
+        # Start Y-axis at 0
+        plt.ylim(bottom=0)
 
         # Show grid
         plt.grid(True)
@@ -47,7 +47,7 @@ class ErrorOverTimePlot:
 
 if __name__ == '__main__':
     # Path to the merged CSV file
-    csv_filepath = '/home/raquel/catkin_ws/src/turtlebot3_datasets/data/merged_errors.csv'  # Update with the actual path
+    csv_filepath = '/home/raquel/catkin_ws/src/turtlebot3_datasets/data/merged_errors.csv'
 
     # Create the plot object and plot the errors over time
     error_over_time_plot = ErrorOverTimePlot(csv_filepath)

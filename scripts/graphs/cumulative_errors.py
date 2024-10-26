@@ -36,8 +36,8 @@ class CumulativeErrorPlot:
         plt.title('Cumulative EKF vs. AMCL Error Over Time')
         plt.legend()
 
-        # Set Y-axis limits if necessary
-        plt.ylim(bottom=0)  # Start Y-axis at 0 to ensure visibility
+        # Start Y-axis at 0
+        plt.ylim(bottom=0)
 
         # Show grid
         plt.grid(True)
@@ -48,7 +48,7 @@ class CumulativeErrorPlot:
 
 if __name__ == '__main__':
     # Path to the merged CSV file
-    csv_filepath = '/home/raquel/catkin_ws/src/turtlebot3_datasets/data/merged_errors.csv'  # Update with the actual path
+    csv_filepath = '/home/raquel/catkin_ws/src/turtlebot3_datasets/data/merged_errors.csv'
 
     # Create the plot object and plot the cumulative errors
     cumulative_error_plot = CumulativeErrorPlot(csv_filepath)

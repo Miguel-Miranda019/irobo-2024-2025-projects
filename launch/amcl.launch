@@ -2,7 +2,7 @@
     <!-- Arguments -->
     <arg name="model" default="waffle_pi" />
     <arg name="bag_name" default="final" />
-    <arg name="map_file" default="$(find turtlebot3_datasets)/data/final.yaml" />
+    <arg name="map_file" default="$(find turtlebot3_datasets)/config/final.yaml" />
     <arg name="open_rviz" default="true" />
     <arg name="initial_pose_x" default="0" />
     <arg name="initial_pose_y" default="0" />

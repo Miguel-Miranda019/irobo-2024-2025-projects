@@ -26,9 +26,9 @@ def merge_error_data(ekf_filepath, amcl_filepath, output_filepath):
 
 if __name__ == '__main__':
     # Paths to the CSV files
-    ekf_filepath = '/home/raquel/catkin_ws/src/turtlebot3_datasets/data/ekf/ekf_error.csv'  # Update with the actual path
-    amcl_filepath = '/home/raquel/catkin_ws/src/turtlebot3_datasets/data/amcl/amcl_error.csv'  # Update with the actual path
-    output_filepath = '/home/raquel/catkin_ws/src/turtlebot3_datasets/data/merged_errors.csv'  # Update with the desired output path
+    ekf_filepath = '/home/raquel/catkin_ws/src/turtlebot3_datasets/data/ekf/ekf_error.csv'
+    amcl_filepath = '/home/raquel/catkin_ws/src/turtlebot3_datasets/data/amcl/amcl_error.csv'
+    output_filepath = '/home/raquel/catkin_ws/src/turtlebot3_datasets/data/merged_errors.csv'
 
     # Call the merge function
     merge_error_data(ekf_filepath, amcl_filepath, output_filepath)
