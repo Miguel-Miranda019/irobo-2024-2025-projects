@@ -79,6 +79,6 @@
   <node name="ekf_error_saver_node" pkg="turtlebot3_datasets" type="publish_ekf_error.py"></node>
 
   <!-- rviz -->
-  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find turtlebot3_datasets)/data/turtlebot3_visualize_localization_sim.rviz"/>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find turtlebot3_datasets)/rviz/turtlebot3_visualize_localization_sim.rviz"/>
 
 </launch>

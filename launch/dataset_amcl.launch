@@ -49,7 +49,7 @@
 
     <!-- rviz -->
     <node pkg="rviz" type="rviz" name="rviz" required="true"
-        args="-d $(find turtlebot3_datasets)/data/amcl_localization.rviz" />
+        args="-d $(find turtlebot3_datasets)/rviz/amcl_localization.rviz" />
 
     
 </launch>
